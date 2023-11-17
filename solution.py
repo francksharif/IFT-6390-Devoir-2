@@ -17,7 +17,17 @@ class SVM:
         m : int (num_classes)
         returns : numpy array of shape (n, m)
         """
-        pass
+        # Number of examples
+        n = len(y)
+
+        # Initialize the output array with -1
+        one_versus_all_labels = -1 * np.ones((n, m))
+
+        # Set the corresponding class label to 1
+        for idx, class_label in enumerate(y):
+            one_versus_all_labels[idx, class_label] = 1
+
+        return one_versus_all_labels
 
     def compute_loss(self, x, y):
         """
