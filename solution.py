@@ -11,6 +11,7 @@ class SVM:
         self.batch_size = batch_size
         self.verbose = verbose
 
+
     def make_one_versus_all_labels(self, y, m):
         """
         y : numpy array of shape (n,)
@@ -18,16 +19,12 @@ class SVM:
         returns : numpy array of shape (n, m)
         """
         # Number of examples
-        n = len(y)
+        n = y.shape[0]
+        y_ova = -np.ones((n, m))  # Initialiser toutes les étiquettes à -1
+        for i in range(m):
+            y_ova[y == i, i] = 1  # Marquer comme +1 pour la classe actuelle
+        return y_ova
 
-        # Initialize the output array with -1
-        one_versus_all_labels = -1 * np.ones((n, m))
-
-        # Set the corresponding class label to 1
-        for idx, class_label in enumerate(y):
-            one_versus_all_labels[idx, class_label] = 1
-
-        return one_versus_all_labels
 
     def compute_loss(self, x, y):
         """
@@ -37,6 +34,10 @@ class SVM:
         """
         pass
 
+
+
+
+
     def compute_gradient(self, x, y):
         """
         x : numpy array of shape (minibatch size, num_features)
@@ -44,6 +45,7 @@ class SVM:
         returns : numpy array of shape (num_features, num_classes)
         """
         pass
+
 
     # Batcher function
     def minibatch(self, iterable1, iterable2, size=1):
@@ -63,13 +65,16 @@ class SVM:
         """
         pass
 
+
     def compute_accuracy(self, y_inferred, y):
         """
         y_inferred : numpy array of shape (num_examples, num_classes)
         y : numpy array of shape (num_examples, num_classes)
         returns : float
         """
-        pass
+        correct_predictions = np.argmax(y, axis=1) == np.argmax(y_inferred, axis=1)
+        accuracy = np.mean(correct_predictions)
+        return accuracy
 
     def fit(self, x_train, y_train, x_test, y_test):
         """
@@ -167,10 +172,14 @@ if __name__ == "__main__":
     train_losses, train_accs, test_losses, test_accs = svm.fit(x_train, y_train, x_test, y_test)
 
     # # to infer after training, do the following:
-    # y_inferred = svm.infer(x_test)
+    y_inferred = svm.infer(x_test)
 
     ## to compute the gradient or loss before training, do the following:
-    # y_train_ova = svm.make_one_versus_all_labels(y_train, 3) # one-versus-all labels
-    # svm.w = np.zeros([x_train.shape[1], 3])
-    # grad = svm.compute_gradient(x_train, y_train_ova)
-    # loss = svm.compute_loss(x_train, y_train_ova)
+    y_train_ova = svm.make_one_versus_all_labels(y_train, 3) # one-versus-all labels
+    svm.w = np.zeros([x_train.shape[1], 3])
+    grad = svm.compute_gradient(x_train, y_train_ova)
+    loss = svm.compute_loss(x_train, y_train_ova)
+
+
+
+
