@@ -12,17 +12,17 @@ class SVM:
         self.verbose = verbose
 
 
+
     def make_one_versus_all_labels(self, y, m):
         """
         y : numpy array of shape (n,)
         m : int (num_classes)
         returns : numpy array of shape (n, m)
         """
-        # Number of examples
         n = y.shape[0]
-        y_ova = -np.ones((n, m))  # Initialiser toutes les étiquettes à -1
+        y_ova = -np.ones((n, m))
         for i in range(m):
-            y_ova[y == i, i] = 1  # Marquer comme +1 pour la classe actuelle
+            y_ova[y == i, i] = 1
         return y_ova
 
 
@@ -32,9 +32,24 @@ class SVM:
         y : numpy array of shape (minibatch size, num_classes)
         returns : float
         """
-        pass
+        n, m = x.shape[0], y.shape[1]
+        loss = 0.0
 
+        for i in range(n):
+            for j in range(m):
+                # Le "hinge loss" pour la classe j
+                hinge_losses = 2 - y[i, j] * np.dot(x[i], self.w[:, j])
+                hinge_losses = np.maximum(0, hinge_losses)
+                loss += np.sum(hinge_losses ** 2)
 
+        # Moyenne sur le nombre d'exemples
+        loss /= n
+
+        # Terme de régularisation L2
+        reg_loss = (self.C / 2) * np.sum(self.w ** 2)
+
+        total_loss = loss + reg_loss
+        return total_loss
 
 
 
@@ -75,6 +90,7 @@ class SVM:
         correct_predictions = np.argmax(y, axis=1) == np.argmax(y_inferred, axis=1)
         accuracy = np.mean(correct_predictions)
         return accuracy
+
 
     def fit(self, x_train, y_train, x_test, y_test):
         """
@@ -169,7 +185,7 @@ if __name__ == "__main__":
 
     print("Fitting the model...")
     svm = SVM(eta=0.0001, C=2, niter=200, batch_size=100, verbose=False)
-    train_losses, train_accs, test_losses, test_accs = svm.fit(x_train, y_train, x_test, y_test)
+    #train_losses, train_accs, test_losses, test_accs = svm.fit(x_train, y_train, x_test, y_test)
 
     # # to infer after training, do the following:
     y_inferred = svm.infer(x_test)
@@ -179,6 +195,8 @@ if __name__ == "__main__":
     svm.w = np.zeros([x_train.shape[1], 3])
     grad = svm.compute_gradient(x_train, y_train_ova)
     loss = svm.compute_loss(x_train, y_train_ova)
+    print(loss)
+    print(grad)
 
 
 
