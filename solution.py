@@ -59,7 +59,21 @@ class SVM:
         y : numpy array of shape (minibatch size, num_classes)
         returns : numpy array of shape (num_features, num_classes)
         """
-        pass
+        n, m = x.shape[0], y.shape[1]
+        num_features = x.shape[1]  # Le nombre de caractéristiques peut être obtenu à partir de x
+        grad = np.zeros((num_features, m))
+
+        for i in range(n):
+            for j in range(m):
+                margin = 2 - (np.dot(self.w[:, j], x[i]) * y[i, j])
+                if margin > 0:
+                    for t in range(num_features):
+                        grad[t, j] -= 2 * (
+                                    x[i, t] * y[i, j])  # Gradient pour un exemple mal classé ou trop proche de la marge
+
+        grad /= n  # Moyenne sur le minibatch
+        grad += self.C * self.w # Ajout du terme de régularisation L2
+        return grad * 2
 
 
     # Batcher function
@@ -167,7 +181,7 @@ def load_data():
     y = y.replace('STAR', 2)
 
     #split dataset in train and test
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=42)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.4, random_state=40)
 
     #convert sets to numpy arrays
     x_train = np.array(x_train)
@@ -204,9 +218,6 @@ if __name__ == "__main__":
     svm.w = np.zeros([x_train.shape[1], 3])
     grad = svm.compute_gradient(x_train, y_train_ova)
     loss = svm.compute_loss(x_train, y_train_ova)
-    print(loss)
-    print(grad)
-
 
 
 
