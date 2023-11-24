@@ -78,7 +78,16 @@ class SVM:
         x : numpy array of shape (num_examples_to_infer, num_features)
         returns : numpy array of shape (num_examples_to_infer, num_classes)
         """
-        pass
+        # Calculer les scores pour chaque classe
+        scores = np.dot(x, self.w)
+
+        # Initialiser y_inferred avec -1 pour toutes les classes
+        y_inferred = -np.ones((x.shape[0], self.m))
+
+        # Mettre à +1 la classe avec le score le plus élevé pour chaque exemple
+        y_inferred[np.arange(x.shape[0]), np.argmax(scores, axis=1)] = 1
+
+        return y_inferred
 
 
     def compute_accuracy(self, y_inferred, y):
